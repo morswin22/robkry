@@ -70,4 +70,14 @@ route('/login', function() {
     }
 });
 
+route('/logout', function() {
+    if (isset($_SESSION['name'])) {
+        unset($_SESSION['name']);
+    }
+    if (isset($_SESSION['pass'])) {
+        unset($_SESSION['pass']);
+    }
+    redirect('/');
+})
+
 ?>
