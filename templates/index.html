@@ -1,7 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %} 
-
-<!-- panel -->
-
+    <div class="container" id="center">
+        <div class="list-group w-75 mx-auto">
+            {% for employee in employees %}
+            <a href="/employee/{{employee.id}}" class="list-group-item list-group-item-action">{{employee.name}}</a>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
