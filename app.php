@@ -36,7 +36,7 @@ route('/employee/:id', function($args) {
     global $db;
     require_logged();
     $query = $db->query('SELECT * FROM `employees` WHERE `id` = '.$args['id']);
-    if ($row = $query->fetch_assoc()) {
+    if ($query and $row = $query->fetch_assoc()) {
         render('employee.html', array('employee'=>$row));
     } else {
         error(404);
@@ -63,7 +63,11 @@ route('/login', function() {
         $_SESSION['name'] = $_POST['email'];
         $_SESSION['pass'] = $_POST['pass'];
     }
-    redirect('/');
+    if (isset($_POST['redir'])) {
+        redirect($_POST['redir']);
+    } else {
+        redirect('/');
+    }
 });
 
 ?>
