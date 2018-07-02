@@ -21,34 +21,41 @@ function require_logged() {
     }
 }
 
-$employees = array(
-    array(
-        'id' => 0,
-        'name' => 'Jan Kowalski'
-    ),
-    array(
-        'id' => 1,
-        'name' => 'Adam Mickiewicz'
-    ),
-    array(
-        'id' => 2,
-        'name' => 'Juliusz Słowacki'
-    )
-);
-
 route('/', function() {
-    global $employees;
+    global $db;
     require_logged();
+    $query = $db->query('SELECT * FROM `employees`');
+    $employees = array();
+    while($row = $query->fetch_assoc()) {
+        $employees[] = $row;
+    }
     render('index.html', array('employees'=>$employees));
 });
 
 route('/employee/:id', function($args) {
-    global $employees;
-    if (isset($employees[$args['id']])) {
-        render('employee.html', array('employee'=>$employees[$args['id']]));
+    global $db;
+    require_logged();
+    $query = $db->query('SELECT * FROM `employees` WHERE `id` = '.$args['id']);
+    if ($row = $query->fetch_assoc()) {
+        render('employee.html', array('employee'=>$row));
     } else {
         error(404);
     }
+});
+
+route('/add', function() {
+    global $db;
+    require_logged();
+    if (isset($_POST['name']) and !empty(trim($_POST['name']))) {
+        $db->query('INSERT INTO `employees`(`name`, `data`) VALUES (\''.trim($_POST['name']).'\',\'[]\')');
+    }
+    redirect('/');
+});
+
+route('/delete/:id', function($args) {
+    global $db;
+    $db->query('DELETE FROM `employees` WHERE `id` = '.$args['id']);
+    redirect('/');
 });
 
 route('/login', function() {

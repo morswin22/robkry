@@ -3,6 +3,19 @@
 {% block body %} 
     <div class="container" id="center">
         <div class="list-group w-75 mx-auto">
+            <li class="list-group-item">
+                <form method="POST" action="/add">
+                <div class="form-group mb-1">
+                    <label for="empname">Nowy pracownik</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="empname" name="name" placeholder="Imię i nazwisko">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-success" type="submit">Dodaj</button>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </li>
             {% for employee in employees %}
             <a href="/employee/{{employee.id}}" class="list-group-item list-group-item-action">{{employee.name}}</a>
             {% endfor %}
