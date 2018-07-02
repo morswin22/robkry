@@ -2,9 +2,16 @@
 
 require_once "lib/router/router.php";
 
+$db = new mysqli('localhost','p.janiak','99988877p','robkry');
+
 $logged = false;
 if(isset($_SESSION['name'], $_SESSION['pass'])) {
-    $logged = true;
+    $query = $db->query('SELECT * FROM `users` WHERE `email` = \''.$_SESSION['name'].'\'');
+    if ($user = $query->fetch_assoc()) {
+        if ($user['pass'] == $_SESSION['pass']) {
+            $logged = true;
+        }
+    }
 }
 
 function require_logged() {

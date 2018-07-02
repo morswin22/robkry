@@ -4,6 +4,7 @@
     {% if code == 403 %}
     <div class="container" id="center">
         <form class="w-75 mx-auto" method="POST" action="/login">
+            <input name="redir" id="redir">
             <div class="form-group">
                 <label for="email">E-mail</label>
                 <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="wpisz e-mail">
@@ -15,6 +16,7 @@
             <button type="submit" class="btn btn-primary">Zaloguj się</button>
         </div>
     </form>
+    <script>$('#redir').val('');</script>
     {% else %}
     <div class="container">
         <h1>Error {{code}}</h1>
