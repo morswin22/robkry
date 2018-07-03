@@ -37,9 +37,25 @@ route('/employee/:id', function($args) {
     require_logged();
     $query = $db->query('SELECT * FROM `employees` WHERE `id` = '.$args['id']);
     if ($query and $row = $query->fetch_assoc()) {
+        $month = date('m');
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN,$month,date('Y'));
         render('employee.html', array('employee'=>$row));
+        echo '<script>const month = '.$month.'; const daysInMonth = '.$days_in_month.'; const userId = '.$row['id'].'; const userData = '.$row['data'].';</script>';
     } else {
         error(404);
+    }
+});
+
+route('/save/:id', function($args) {
+    global $db;
+    require_logged();
+    if (isset($_POST['data'])) {
+        $query = $db->query('UPDATE `employees` SET `data`=\''.json_encode($_POST['data']).'\' WHERE `id` = '.$args['id']);
+        if (!$query) {
+            error(500);
+        }
+    } else {
+        error(500);
     }
 });
 
