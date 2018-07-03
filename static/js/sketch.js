@@ -10,32 +10,6 @@ function setup() {
 	canvas = createCanvas(container.width(), container.width()*0.5625);
 	$canvas = $(canvas.elt);
 	$canvas.appendTo(container);
-	let $btn = $('<button class="btn btn-outline-primary my-3" />').html('Zapisz');
-	$btn.click(e=>{
-		e.preventDefault();
-		let data = [];
-		for(let pillar of pillars) {
-			data.push({
-				day: parseInt(pillar.day),
-				hours: parseInt(pillar.val())
-			});
-		};
-		$.ajax({
-			url: '/save/'+userId,
-			method: "POST",
-			data: {
-				month,
-				data
-			},
-			success() {
-				console.log('Zapisano');
-			},
-			error() {
-				console.error('Błąd');
-			}
-		});
-	})
-	$btn.appendTo(container);
 	$(window).resize(e=>{
 		resizeCanvas(container.width(), container.width()*0.5625);
 	})
@@ -46,8 +20,8 @@ function setup() {
 		delimeters.push((height/(maxHours+1))*i+29);
 	}
 	for(let i in userData) {
-		if (pillars[i].day == userData[i].day) {
-			pillars[i].val(parseInt(userData[i].hours));
+		if (userData[month-1][i] && pillars[i].day == userData[month-1][i].day) {
+			pillars[i].val(parseInt(userData[month-1][i].hours));
 		}
 	}
 }
@@ -115,10 +89,30 @@ function mouseClicked() {
 		if (selected) {
 			selected.move(mouseY);
 			selected.stick(delimeters);
+			let data = [];
+			for(let pillar of pillars) {
+				data.push({
+					day: parseInt(pillar.day),
+					hours: parseInt(pillar.val())
+				});
+			};
+			$.ajax({
+				url: '/save/'+userId,
+				method: "POST",
+				data: {
+					month,
+					data
+				},
+				success() {
+					console.log('Zapisano');
+				},
+				error() {
+					console.error('Błąd');
+				}
+			});
 		}
 		selected = undefined;
 		startDrag = false;
 		stopDrag = true;
-		// TODO: on this call $.ajax
 	}
 }
