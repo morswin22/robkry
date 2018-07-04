@@ -57,14 +57,18 @@ function updatePillars() {
 }
 
 function selectPillar() {
-	isDragging = (startDrag == true && stopDrag == false);
-	if (isDragging) {
-		for(let pillar of pillars) {
-			if(pillar.containsX(startDragX)) {
-				selected = pillar;
-				selected.grab(startDragY);
+	if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+		isDragging = (startDrag == true && stopDrag == false);
+		if (isDragging) {
+			for(let pillar of pillars) {
+				if(pillar.containsX(startDragX)) {
+					selected = pillar;
+					selected.grab(startDragY);
+				}
 			}
 		}
+	} else {
+		selected = undefined;
 	}
 }
 
