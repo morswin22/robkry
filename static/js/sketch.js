@@ -1,4 +1,6 @@
-const maxHours = 12;
+const maxHours = 24;
+let total = 0;
+let $total;
 
 let pillars = [];
 let delimeters = [];
@@ -13,53 +15,121 @@ function setup() {
 	$(window).resize(e=>{
 		resizeCanvas(container.width(), container.width()*0.5625);
 	})
+	$total = $('<p>').css('text-align','center');
+	$total.appendTo(container);
+
+	drawingContext.font = 'lighter 12px "Segoe UI"';
+
+	createDelimeters();
+
+	createPillars();
+	initPillars();
+}
+
+function createPillars() {
 	for(let i = 0; i<daysInMonth; i++) {
 		pillars.push(new Pillar(i+1,((width-30)/daysInMonth)*i+30,height-30,((width-30)/daysInMonth)));
 	}
-	for(let i = 0; i<=maxHours; i++) {
-		delimeters.push((height/(maxHours+1))*i+29);
-	}
-	for(let i in userData) {
-		if (userData[month-1][i] && pillars[i].day == userData[month-1][i].day) {
-			pillars[i].val(parseInt(userData[month-1][i].hours));
+}
+
+function initPillars() {
+	if (userData[month-1]) {
+		for(let i in userData[month-1]) {
+			if (userData[month-1][i] && pillars[i].day == userData[month-1][i].day) {
+				pillars[i].val(userData[month-1][i].hours);
+			}
 		}
+	}
+}
+
+function updatePillars() {
+	stroke(51);
+	fill(51);
+	for(let i = 0; i<daysInMonth; i++) {
+		textAlign(LEFT, BOTTOM);
+		text(i+1,((width-30)/daysInMonth)*i+30,height);
+		pillars[i].update(
+			((width-30)/daysInMonth)*i+30,
+			height-20,
+			((width)/daysInMonth)
+		);
+	}
+}
+
+function selectPillar() {
+	isDragging = (startDrag == true && stopDrag == false);
+	if (isDragging) {
+		for(let pillar of pillars) {
+			if(pillar.containsX(startDragX)) {
+				selected = pillar;
+				selected.grab(startDragY);
+			}
+		}
+	}
+}
+
+function renderPillars() {
+	for(let pillar of pillars) {
+		if (pillar != selected) {
+			pillar.grab(pillar.h + pillar.pos.y); // grab top
+			pillar.move(pillar.h + pillar.pos.y)
+			pillar.stick(delimeters);
+			pillar.grab(pillar.pos.y); // grab bottom
+			pillar.move(pillar.pos.y)
+			pillar.stick(delimeters);
+			if (!isNaN(pillar.h)) pillar.h = -constrain(-pillar.h, 10, height);
+		}
+		pillar.render();
+	}
+}
+
+function sumPillars() {
+	total = 0;
+	for(let pillar of pillars) {
+		total += pillar.val().total;
+	}
+	$total.html('Łączna ilość przepracowanych godzin: '+total);
+}
+
+function createDelimeters() {
+	for(let i = 0; i<=maxHours; i++) {
+		delimeters.push(((height-20)/(maxHours+1))*i+20);
+	}
+}
+
+function drawDelimeters() {
+	for(let i = 0; i<=maxHours; i++) {
+		let redundant = ((height-20)/(maxHours+1))*i+20;
+		stroke(51);
+		fill(51);
+		textAlign(LEFT, CENTER)
+		text(maxHours-i,0,redundant);
+
+		stroke(155);
+		fill(155);
+		line(15,redundant,width,redundant);
+		delimeters.push(redundant);
 	}
 }
 
 function draw() {
 	background(255);
 
-	delimeters = [];
-	for(let i = 0; i<=maxHours; i++) {
+	delimeters = []; // delimeters reset
+	drawDelimeters();
+	
+	updatePillars();
+	selectPillar();
+	renderPillars();
+
+	if (selected) { // draw hours sum
 		stroke(51);
 		fill(51);
-		text(maxHours-i,0,(height/(maxHours+1))*i+10);
-
-		stroke(155);
-		fill(155);
-		line(0,(height/(maxHours+1))*i+29,width,(height/(maxHours+1))*i+29);
-		delimeters.push((height/(maxHours+1))*i+29);
-	}
-	
-	stroke(51);
-	fill(51);
-	for(let i = 0; i<daysInMonth; i++) {
-		text(i+1,((width-30)/daysInMonth)*i+30,height);
-		pillars[i].update(((width-30)/daysInMonth)*i+30,height-20,((width-30)/daysInMonth));
+		textAlign(RIGHT, CENTER);
+		text(selected.val().total, mouseX-3, mouseY);
 	}
 
-	isDragging = (startDrag == true && stopDrag == false);
-	if (isDragging) {
-		for(let pillar of pillars) {
-			if(pillar.containsX(startDragX)) {
-				selected = pillar;
-			}
-		}
-	}
-
-	for(let pillar of pillars) {
-		pillar.render();
-	}
+	sumPillars();
 
 }
 
@@ -93,7 +163,7 @@ function mouseClicked() {
 			for(let pillar of pillars) {
 				data.push({
 					day: parseInt(pillar.day),
-					hours: parseInt(pillar.val())
+					hours: pillar.val()
 				});
 			};
 			$.ajax({
