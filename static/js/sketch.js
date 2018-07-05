@@ -5,6 +5,8 @@ let $total;
 let pillars = [];
 let delimeters = [];
 
+let connection = true;
+
 let canvas, $canvas;
 function setup() {
 	let container = $('.container');
@@ -114,7 +116,20 @@ function drawDelimeters() {
 	}
 }
 
+function checkConnection() {
+	if (navigator.onLine != connection) {
+		if (navigator.onLine) {
+			$.notify('Odzyskano połączenie z internetem',{position:"top left",style:'bootstrap',className:'success'});
+		} else {
+			$.notify('Utracono połączenie z internetem',{position:"top left",style:'bootstrap',className:'error'});
+		}
+		connection = navigator.onLine;
+	}
+}
+
 function draw() {
+	checkConnection();
+
 	background(255);
 
 	delimeters = []; // delimeters reset
@@ -177,10 +192,10 @@ function mouseClicked() {
 					data
 				},
 				success() {
-					console.log('Zapisano');
+					//console.log('Zapisano');
 				},
 				error() {
-					console.error('Błąd');
+					$.notify('Błąd podczas zapisywania danych',{position:"top left",style:'bootstrap',className:'error'});
 				}
 			});
 		}
