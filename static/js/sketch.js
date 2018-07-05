@@ -18,8 +18,6 @@ function setup() {
 	$total = $('<p>').css('text-align','center');
 	$total.appendTo(container);
 
-	drawingContext.font = 'lighter 12px "Segoe UI"';
-
 	createDelimeters();
 
 	createPillars();
@@ -43,9 +41,9 @@ function initPillars() {
 }
 
 function updatePillars() {
-	stroke(51);
-	fill(51);
 	for(let i = 0; i<daysInMonth; i++) {
+		noStroke();
+		fill(0);
 		textAlign(LEFT, BOTTOM);
 		text(i+1,((width-30)/daysInMonth)*i+30,height);
 		pillars[i].update(
@@ -104,8 +102,8 @@ function createDelimeters() {
 function drawDelimeters() {
 	for(let i = 0; i<=maxHours; i++) {
 		let redundant = ((height-20)/(maxHours+1))*i+20;
-		stroke(51);
-		fill(51);
+		noStroke();
+		fill(0);
 		textAlign(LEFT, CENTER)
 		text(maxHours-i,0,redundant);
 
@@ -127,8 +125,8 @@ function draw() {
 	renderPillars();
 
 	if (selected) { // draw hours sum
-		stroke(51);
-		fill(51);
+		noStroke();
+		fill(0);
 		textAlign(RIGHT, CENTER);
 		text(selected.val().total, mouseX-3, mouseY);
 	}

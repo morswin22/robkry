@@ -148,6 +148,7 @@ class Pillar {
         if (selected == this) {
             stroke(20,255,20,255);
             fill(100,255,100,220);
+            strokeWeight(2);
         } else if (this.val().total > 0) {
             stroke(20,255,20,160);
             fill(100,255,100,160);
@@ -156,5 +157,6 @@ class Pillar {
             fill(255,255,80,160);
         }
         rect(this.pos.x, this.pos.y, this.w, this.h);
+        strokeWeight(1);
     }
 }
