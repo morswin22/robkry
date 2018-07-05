@@ -17,8 +17,10 @@ function setup() {
 	$(window).resize(e=>{
 		resizeCanvas(container.width(), container.width()*0.5625);
 	})
-	$total = $('<p>').css('text-align','center');
+	$total = $('<p />').css('text-align','center');
 	$total.appendTo(container);
+	$save = $(`<a href="/download/${userId}/${year}/${month}" />`).html('Pobierz dane').addClass('btn').addClass('btn-outline-primary');
+	$save.appendTo(container);
 
 	createDelimeters();
 

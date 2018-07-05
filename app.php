@@ -14,12 +14,24 @@ if(isset($_SESSION['name'], $_SESSION['pass'])) {
     }
 }
 
+if (is_dir('static/downloads/'.$_COOKIE['PHPSESSID'])) {
+    delTree('static/downloads/'.$_COOKIE['PHPSESSID']);
+}
+
 function require_logged() {
     global $logged;
     if (!$logged) {
         error(403);
     }
 }
+
+function delTree($dir) { 
+    $files = array_diff(scandir($dir), array('.','..')); 
+    foreach ($files as $file) { 
+       (is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file"); 
+    } 
+    return rmdir($dir); 
+} 
 
 route('/', function() {
     global $db;
@@ -125,6 +137,19 @@ route('/logout', function() {
         unset($_SESSION['pass']);
     }
     redirect('/');
-})
+});
+
+route('/download/{id}/{year}/{month}', function($args) {
+    require_logged();
+    global $db, $previous_page;
+    $query = $db->query('SELECT * FROM `employees` WHERE `id` = '.$args['id']);
+    if ($user = $query->fetch_assoc()) {
+        mkdir('static/downloads/'.$_COOKIE['PHPSESSID']);
+        require_once('downloader.php');
+        redirect('/static/downloads/'.$_COOKIE['PHPSESSID'].'/'.$fname.'.xlsx');
+    } else {
+        redirect($previous_page);
+    }
+});
 
 ?>
