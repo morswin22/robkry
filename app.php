@@ -37,10 +37,27 @@ route('/employee/:id', function($args) {
     require_logged();
     $query = $db->query('SELECT * FROM `employees` WHERE `id` = '.$args['id']);
     if ($query and $row = $query->fetch_assoc()) {
+        $year = intval(date('Y'));
         $month = intval(date('m'));
-        $days_in_month = cal_days_in_month(CAL_GREGORIAN,$month,date('Y'));
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN,$month,$year);
+        $d = json_decode($row['data'], true);
+        if (!isset($d[$year])) {
+            $d[$year] = json_decode('[[],[],[],[],[],[],[],[],[],[],[],[]]',true);
+        }
+        if (count($d[$year][$month-1]) != $days_in_month) {
+            for($i = 0; $i < $days_in_month; $i++) {
+                $d[$year][$month-1][$i] = array(
+                    'day' => $i+1,
+                    'hours' => array(
+                        'top' => "0",
+                        'bottom' => "0",
+                        'total' => "0"
+                    )
+                );
+            }
+        }
         render('employee.html', array('employee'=>$row));
-        echo '<script>const month = '.$month.'; const daysInMonth = '.$days_in_month.'; const userId = '.$row['id'].'; const userData = '.$row['data'].';</script>';
+        echo '<script>const year = '.$year.'; const month = '.$month.'; const daysInMonth = '.$days_in_month.'; const userId = '.$row['id'].'; const userData = '.json_encode($d).';</script>';
     } else {
         error(404);
     }
@@ -49,12 +66,15 @@ route('/employee/:id', function($args) {
 route('/save/:id', function($args) {
     global $db;
     require_logged();
-    if (isset($_POST['data'],$_POST['month'])) {
+    if (isset($_POST['data'],$_POST['month'], $_POST['year'])) {
         $get = $db->query('SELECT `data` FROM `employees` WHERE `id` = '.$args['id']);
         if ($row = $get->fetch_assoc()) {
-            $d = json_decode($row['data']);
-            if (isset($d[$_POST['month']-1])) {
-                $d[$_POST['month']-1] = $_POST['data'];
+            $d = json_decode($row['data'], true);
+            if (!isset($d[$_POST['year']])) {
+                $d[$_POST['year']] = json_decode('[[],[],[],[],[],[],[],[],[],[],[],[]]',true);
+            }
+            if (isset($d[$_POST['year']][$_POST['month']-1])) {
+                $d[$_POST['year']][$_POST['month']-1] = $_POST['data'];
                 $query = $db->query('UPDATE `employees` SET `data`=\''.json_encode($d).'\' WHERE `id` = '.$args['id']);
                 if (!$query) {
                     error(500);
@@ -74,7 +94,7 @@ route('/add', function() {
     global $db;
     require_logged();
     if (isset($_POST['name']) and !empty(trim($_POST['name']))) {
-        $db->query('INSERT INTO `employees`(`name`, `data`) VALUES (\''.trim($_POST['name']).'\',\'[[],[],[],[],[],[],[],[],[],[],[],[]]\')');
+        $db->query('INSERT INTO `employees`(`name`, `data`) VALUES (\''.trim($_POST['name']).'\',\'{}\')');
     }
     redirect('/');
 });

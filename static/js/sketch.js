@@ -31,10 +31,10 @@ function createPillars() {
 }
 
 function initPillars() {
-	if (userData[month-1]) {
-		for(let i in userData[month-1]) {
-			if (userData[month-1][i] && pillars[i].day == userData[month-1][i].day) {
-				pillars[i].val(userData[month-1][i].hours);
+	if (userData[year][month-1]) {
+		for(let i in userData[year][month-1]) {
+			if (userData[year][month-1][i] && pillars[i].day == userData[year][month-1][i].day) {
+				pillars[i].val(userData[year][month-1][i].hours);
 			}
 		}
 	}
@@ -172,6 +172,7 @@ function mouseClicked() {
 				url: '/save/'+userId,
 				method: "POST",
 				data: {
+					year,
 					month,
 					data
 				},
